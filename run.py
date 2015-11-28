@@ -22,7 +22,11 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def vote():
+def main():
+    return render_template('main.html')
+
+@app.route('/action/')
+def action():
     # for finding his/her party
     for r in votes:
         for o in options:
@@ -33,8 +37,7 @@ def vote():
                         r["votes"][o][j]["partycolor"] = partycolors[r["votes"][o][j]["party"]]
                     else:
                         r["votes"][o][j] = {"name_kr": r["votes"][o][j], "partycolor": "#999"}
-
-    return render_template('vote.html', votes=votes)
+    return render_template('action.html', votes=votes)
 
 
 if __name__ == '__main__':
