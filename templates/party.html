@@ -35,35 +35,23 @@
 <table id="vote" class="table table-bordered table-striped table-nonfluid">
 	<thead>
 		<tr>
-			<th class="col-md-3">Name</th>
-			<th class="col-md-5">Yes</th>
-			<th class="col-md-2">No</th>
-			<th class="col-md-2">Abstain</th>
+            <th></th>
+            {% for party in parties %}
+            <th>{{ party }}</th>
+            {% endfor %}
 		</tr>
 	</thead>
 	<tbody>
-	{% for r in bills %}
+	{% for bill in bills %}
 		<tr>
-			<td>{{ r.name }}</td>
-			<td>
-			{% for v in r.votes.yea %}
-				<div class="vote name-{{ v.name_kr }}" title="{{ v.name_kr }}" style=" background-color: {{ v.partycolor }};"></div>
-			{% endfor %}
-			</td>
-			<td>
-			{% if "nay" in r.votes %}
-				{% for v in r.votes.nay %}
-				<div class="vote name-{{ v.name_kr }}" title="{{ v.name_kr }}" style=" background-color: {{ v.partycolor }};"></div>
-				{% endfor %}
-			{% endif %}
-			</td>
-			<td>
-			{% if "forfeit" in r.votes %}
-				{% for v in r.votes.forfeit %}
-				<div class="vote name-{{ v.name_kr }}" title="{{ v.name_kr }}" style=" background-color: {{ v.partycolor }};"></div>
-				{% endfor %}
-			{% endif %}
-			</td>
+			<td>{{ bill.name }}</td>
+            {% for party in parties %}
+                <td>
+                {% for name, color in bill.party_votes[party] %}
+                <div class="vote name-{{ name }}" title="{{ name }}" style="background-color: {{ color }};"></div>
+                {% endfor %}
+                </td>
+            {% endfor %}
 		</tr>
 	{% endfor %}
 	</tbody>
