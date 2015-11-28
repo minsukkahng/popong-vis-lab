@@ -2,10 +2,21 @@ popong-vis-lab
 ==============
 
 
-### Per action
+## Screenshots
 
-![](static/images/per_action.png)
+- Per action
 
-### Per party
+    <img src="static/images/per_action.png" width="400px">
 
-![](static/images/per_party.png)
+- Per party
+
+    <img src="static/images/per_party.png" width="400px">
+
+## Author
+
+Minsuk Kang (@minsukkahng)
+
+## License
+
+Apache 2.0
+
