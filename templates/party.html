@@ -2,21 +2,21 @@
 <title>Vote Visualization</title>
 <meta charset="utf-8">
 <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-	
+
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-	
+
 <script src="/static/interaction.js"></script>
 
 <style>
 .table-nonfluid {
-	width: auto;	
+	width: auto;
 }
 .container {
 	width: 1000px;
 }
-.vote { 
+.vote {
 	float: left;
 	width: 7px;
 	height: 7px;
@@ -35,35 +35,23 @@
 <table id="vote" class="table table-bordered table-striped table-nonfluid">
 	<thead>
 		<tr>
-			<th class="col-md-3">Name</th>
-			<th class="col-md-5">Yes</th>
-			<th class="col-md-2">No</th>
-			<th class="col-md-2">Abstain</th>
+            <th></th>
+            {% for party in parties %}
+            <th>{{ party }}</th>
+            {% endfor %}
 		</tr>
 	</thead>
 	<tbody>
-	{% for r in data %}
+	{% for bill in bills %}
 		<tr>
-			<td>{{ r.name }}</td>
-			<td>
-			{% for v in r.votes.yea %}
-				<div class="vote name-{{ v.name_kr }}" title="{{ v.name_kr }}" style=" background-color: {{ v.partycolor }};"></div>
-			{% endfor %}
-			</td>
-			<td>
-			{% if "nay" in r.votes %}
-				{% for v in r.votes.nay %}
-				<div class="vote name-{{ v.name_kr }}" title="{{ v.name_kr }}" style=" background-color: {{ v.partycolor }};"></div>
-				{% endfor %}
-			{% endif %}
-			</td>
-			<td>
-			{% if "forfeit" in r.votes %}
-				{% for v in r.votes.forfeit %}
-				<div class="vote name-{{ v.name_kr }}" title="{{ v.name_kr }}" style=" background-color: {{ v.partycolor }};"></div>
-				{% endfor %}
-			{% endif %}
-			</td>
+			<td>{{ bill.name }}</td>
+            {% for party in parties %}
+                <td>
+                {% for name, color in bill.party_votes[party] %}
+                <div class="vote name-{{ name }}" title="{{ name }}" style="background-color: {{ color }};"></div>
+                {% endfor %}
+                </td>
+            {% endfor %}
 		</tr>
 	{% endfor %}
 	</tbody>

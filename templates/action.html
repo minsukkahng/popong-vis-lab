@@ -1,0 +1,75 @@
+<!doctype html>
+<title>Vote Visualization</title>
+<meta charset="utf-8">
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+<script src="/static/interaction.js"></script>
+
+<style>
+.table-nonfluid {
+	width: auto;
+}
+.container {
+	width: 1000px;
+}
+.vote {
+	float: left;
+	width: 7px;
+	height: 7px;
+	background-color: #079;
+	border-radius: 2px;
+	margin-right: 1px;
+	margin-bottom: 1px;
+}
+</style>
+<body>
+
+<div class="container">
+
+<h2>본회의 표결</h2>
+
+<table id="vote" class="table table-bordered table-striped table-nonfluid">
+	<thead>
+		<tr>
+			<th class="col-md-3">Name</th>
+			<th class="col-md-5">Yes</th>
+			<th class="col-md-2">No</th>
+			<th class="col-md-2">Abstain</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for r in bills %}
+		<tr>
+			<td>{{ r.name }}</td>
+			<td>
+			{% for v in r.votes.yea %}
+				<div class="vote name-{{ v.name_kr }}" title="{{ v.name_kr }}" style=" background-color: {{ v.partycolor }};"></div>
+			{% endfor %}
+			</td>
+			<td>
+			{% if "nay" in r.votes %}
+				{% for v in r.votes.nay %}
+				<div class="vote name-{{ v.name_kr }}" title="{{ v.name_kr }}" style=" background-color: {{ v.partycolor }};"></div>
+				{% endfor %}
+			{% endif %}
+			</td>
+			<td>
+			{% if "forfeit" in r.votes %}
+				{% for v in r.votes.forfeit %}
+				<div class="vote name-{{ v.name_kr }}" title="{{ v.name_kr }}" style=" background-color: {{ v.partycolor }};"></div>
+				{% endfor %}
+			{% endif %}
+			</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+
+</div>
+
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script></script>
