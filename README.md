@@ -14,7 +14,7 @@ popong-vis-lab
 
 ## Author
 
-Minsuk Kang (@minsukkahng)
+Minsuk Kahng, Lucy Park
 
 ## License
 
