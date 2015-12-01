@@ -76,7 +76,7 @@ def per_action():
 
 @app.route('/party/')
 def per_party():
-    return render_template('party.html', bills=bills, parties=sorted(list(parties)))
+    return render_template('party.html', bills=bills, parties=sorted(list(parties)), persons=sorted(people.items()))
 
 
 
