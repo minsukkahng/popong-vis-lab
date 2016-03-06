@@ -1,16 +1,17 @@
 popong-vis-lab
 ==============
 
+# Bill Vote
 
 ## Screenshots
 
 - Per action
 
-    <img src="static/images/per_action.png" width="400px">
+    <img src="bill_vote/static/images/per_action.png" width="400px">
 
 - Per party
 
-    <img src="static/images/per_party.png" width="400px">
+    <img src="bill_vote/static/images/per_party.png" width="400px">
 
 ## Author
 
