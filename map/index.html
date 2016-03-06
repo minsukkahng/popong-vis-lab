@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<style>
+		@import url(http://fonts.googleapis.com/earlyaccess/nanumgothic.css);
+		text, li, div, h3 { 
+      font-family: 'Nanum Gothic', sans-serif; 
+    }
+		svg {
+			background-color: #fff;
+		}
+		.province {
+			fill: #def;
+			stroke: #666;
+			stroke-width: 1;
+		}
+		.municipality {
+			fill: #eee;
+			stroke: #fff;
+			stroke-width: 1;
+			opacity: 0.5;
+		}
+		.province-label {
+			font-size: 9px;
+			text-anchor: middle;
+		}
+		.municipality-label {
+			font-size: 4px;
+			text-anchor: middle;
+			visibility: hidden;
+		}
+		.g_municipalities {
+			pointer-events: all;
+		}
+		path.highlighted {
+			fill: orange;
+		}
+		#info {
+			float: left;
+			height: 300px;
+			width: 300px;
+			background-color: #f7f7f7;
+		}
+		svg {
+			float: left;
+		}
+		img {
+			height: 70px;
+		}
+	</style>
+</head>
+<body>
+
+<div class="buttons">
+	<button id="zoom_in">+</button>
+	<button id="zoom_out">-</button>
+</div>
+
+<svg></svg>
+
+<div id="info">
+</div>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v0.min.js"></script>
+<script>
+		var w = 960, h = 720;
+		
+		var proj = d3.geo.mercator()
+			.center([128.0, 35.9])
+			.scale(6000)
+			.translate([w/2, h/2]);
+
+		var zoom = d3.behavior.zoom()
+		.scaleExtent([1, 20])
+		.on("zoom", zoomed);
+
+		var path = d3.geo.path().projection(proj);
+
+		var svg = d3.select("svg")
+			.attr("width", w)
+			.attr("height", h);
+			var g = svg.append("g");
+
+    svg.call(zoom)
+		  .call(zoom.event);
+	
+		var persons;
+		var districts; 
+		
+    // todo: be careful about asynchronous
+    d3.json("person_district.json", function(error, data) {
+			persons = data.persons;
+			districts = data.districts;
+		});
+		
+    d3.json("skorea_provinces_topo_simple.json", function(error, kor) {
+			var provinces = topojson.object(kor, kor.objects['skorea_provinces_geo']);
+			
+			var g_provinces = g.selectAll('g')
+				.data(provinces.geometries, function(d) { return d.properties.code; })
+				.enter()
+				.append('g')
+				.attr('class', 'g_province');
+			
+			g_provinces.append('path')
+				.attr('d', path)
+				.attr('class', 'province')
+				.append("title")
+				.text(function(d) { return d.properties.name; });
+
+			g_provinces.append("text")
+				.attr("class", "province-label")
+				.attr("id", function(d) { return "subunit-label " + d.properties.code; })
+				.attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+				.attr("dy", ".35em")
+				.text(function(d) { return d.properties.name; });
+		});
+
+		d3.json("skorea_municipalities_topo_simple.json", function(error, kor) {
+			var municipalities = topojson.object(kor, kor.objects['skorea_municipalities_geo']);
+			
+			var g_municipalities = g.selectAll('g')
+				.data(municipalities.geometries, function(d) { return d.properties.code; })
+				.enter()
+				.append('g')
+				.attr('class', 'g_municipality');
+			
+			g_municipalities.append('path')
+				.attr('d', path)
+				.attr('class', 'municipality')
+				.append("title")
+				.text(function(d) { return d.properties.name; });
+
+			g_municipalities.append("text")
+				.attr("class", "municipality-label")
+				.attr("id", function(d) { return "subunit-label " + d.properties.code; })
+				.attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+				.attr("dy", ".35em")
+				.text(function(d) { return d.properties.name; });
+			
+			g_municipalities.on("mouseover", function() {
+				d3.select(this).select("path").classed("highlighted", true);
+				//d3.select("#info").text(d3.select(this).datum().properties.name);
+				
+				var district_code = d3.select(this).datum().properties.code;
+				var html_text = "";
+				if( districts.hasOwnProperty(district_code) ) {
+					var district = districts[district_code]
+					html_text += '<h3>'+district.name+'</h3>';
+					for( var j=0 ; j<district.persons.length ; j++ ) {
+						html_text += '<li>';
+						html_text += '<img src="'+persons[district.persons[j].id].image+'" /><br />';
+						html_text += district.persons[j].name + ' ';
+						html_text += '<span style="color: white; background-color: #'+persons[district.persons[j].id].party_color+'">'+ persons[district.persons[j].id].party + '</span> ';
+						html_text += '<br />' +district.persons[j].district_names + ' ';
+						html_text += '</li>';
+					}
+				}
+				else {
+					html_text = "No data"
+				}
+				d3.select("#info").html(html_text);
+			});
+			g_municipalities.on("mouseout", function() {
+				d3.select(this).select("path").classed("highlighted", false);
+				//d3.select("#info").text("");
+			})
+		});
+
+		function zoomed() {
+			g.attr("transform", 
+				"translate(" + zoom.translate() + ")scale(" + zoom.scale() + ")"
+			);
+			//console.log(zoom.scale())
+			if( zoom.scale() > 8 ) {
+				d3.selectAll("text.municipality-label")
+					.style("visibility", "visible")
+					.style("font-size", "2px");
+			}
+			else if( zoom.scale() > 4 ) {
+				d3.selectAll("text.municipality-label").style("visibility", "visible");
+			}
+			else if( zoom.scale() > 2 ) {
+				d3.selectAll("text.municipality-label")
+					.filter( function(d) { return d.properties.code.substr(0,2) != "11"; })
+					.style("visibility", "visible");
+				d3.selectAll("text.municipality-label")
+					.filter( function(d) { return d.properties.code.substr(0,2) == "11"; })
+					.style("visibility", "hidden");
+			}
+			else {
+				d3.selectAll("text.municipality-label").style("visibility", "hidden");
+			}
+		}
+
+    d3.selectAll('button').on('click', zoomClicked);
+
+  function interpolateZoom(translate, scale) {
+		var self = this;
+		return d3.transition().duration(350).tween("zoom", function () {
+				var iTranslate = d3.interpolate(zoom.translate(), translate),
+						iScale = d3.interpolate(zoom.scale(), scale);
+				return function (t) {
+						zoom
+								.scale(iScale(t))
+								.translate(iTranslate(t));
+						zoomed();
+				};
+		});
+  }
+
+  function zoomClicked() {
+    var clicked = d3.event.target,
+				direction = 1,
+				factor = 0.2,
+				target_zoom = 1,
+				center = [w / 2, h / 2],
+				extent = zoom.scaleExtent(),
+				translate = zoom.translate(),
+				translate0 = [],
+				l = [],
+				view = {x: translate[0], y: translate[1], k: zoom.scale()};
+
+		d3.event.preventDefault();
+		direction = (this.id === 'zoom_in') ? 1 : -1;
+		target_zoom = zoom.scale() * (1 + factor * direction);
+
+		if (target_zoom < extent[0] || target_zoom > extent[1]) { return false; }
+
+		translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
+		view.k = target_zoom;
+		l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
+
+		view.x += center[0] - l[0];
+		view.y += center[1] - l[1];
+
+		interpolateZoom([view.x, view.y], view.k);
+  }
+
+</script>
+
+</body>
+</html>
